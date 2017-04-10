@@ -11,7 +11,7 @@ import (
 	"sort"
 )
 
-const FixturePath = "testdata/fixtures"
+const FixturePath = "testdata"
 
 // Fixture represents a test Fixture.
 type Fixture struct {
@@ -41,6 +41,19 @@ func NewFixture(name string) (*Fixture, error) {
 	return f, nil
 }
 
+func ReadFixtures(names ...string) (FixtureList, error) {
+	list := FixtureList{}
+	for _, name := range names {
+		f, err := NewFixture(name)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, f)
+	}
+
+	return list, nil
+}
+
 // Load inserts f's data into db inside of a transaction. If an error is
 // encountered, the transaction is rolled back.
 func (f *Fixture) Load(db *sql.DB) error {
@@ -62,11 +75,9 @@ func (f *Fixture) LoadTx(tx *sql.Tx) error {
 	return f.loadRecordsTx(f.recordList(), tx)
 }
 
-// FindTag finds the record in f that has the name "tag". The second return
-// value will be false if the record cannot be found, and true otherwise.
-func (f *Fixture) FindTag(tag string) (Record, bool) {
-	r, ok := f.Records[tag]
-	return r, ok
+func (f *Fixture) Clean(db *sql.DB) error {
+	_, err := db.Exec(f.deleteStr())
+	return err
 }
 
 // recordList Returns a flat list of all records in this fixture.
@@ -133,4 +144,10 @@ func (f *Fixture) insertStr() string {
 	fmt.Fprint(bufT, ");")
 
 	return string(append(bufH.Bytes(), bufT.Bytes()...))
+}
+
+func (f *Fixture) deleteStr() string {
+	buf := bytes.NewBuffer([]byte{})
+	fmt.Fprintf(buf, "DELETE FROM %v;", f.Table)
+	return string(buf.Bytes())
 }
