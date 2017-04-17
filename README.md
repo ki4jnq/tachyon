@@ -45,7 +45,25 @@ func TestSomethingBig(t *testing.T) {
 }
 ```
 
-Fixtures are expected to exist in a `testdata/` subdirectory, relative to the file where `tachyon.NewFixture()` is invoked. Also, fixtures should have a `.yml` suffix.
+Fixture files should be in the following format:
+
+```yaml
+table: users
+fields:
+  - email
+  - name
+
+data:
+  picard:
+    email: "picard.cc@enterprise.net"
+    name: "Jean Luc Picard"
+
+  riker:
+    email: "riker.xo@enterprise.net"
+    name: "William Riker"
+```
+
+Place your fixtures in a `testdata/` subdirectory relative to the root package path. Make sure that your fixtures have a `.yml` file extension.
 
 ## TODO
 

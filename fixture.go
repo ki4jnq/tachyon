@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"go/build"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"os"
 	"path"
 	"sort"
 )
@@ -21,12 +21,16 @@ type Fixture struct {
 }
 
 func NewFixture(name string) (*Fixture, error) {
-	base, err := os.Getwd()
-	if err != nil {
-		return nil, err
+	var dataDir = ""
+
+	// Test if the parent directory is a go package, and if it is, look for
+	// fixtures there.
+	_, err := build.Import("./", "../", build.IgnoreVendor)
+	if err == nil {
+		dataDir = "../"
 	}
 
-	raw, err := ioutil.ReadFile(path.Join(base, FixturePath, name+".yml"))
+	raw, err := ioutil.ReadFile(path.Join(dataDir, FixturePath, name+".yml"))
 	if err != nil {
 		return nil, err
 	}
