@@ -24,7 +24,7 @@ func (fl FixtureList) LoadTx(tx *sql.Tx) error {
 	return nil
 }
 
-// Clean deletes all records in effected tables in the reverse order that they
+// Clean deletes all records in affected tables in the reverse order that they
 // were loaded. This helps ensure that any child records are deleted before
 // the parent records they depend on are.
 func (fl FixtureList) Clean(db *sql.DB) error {
